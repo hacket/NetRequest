@@ -1,16 +1,12 @@
 package com.example.netlibrary.net;
 
 import java.io.File;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.RequestFuture;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -22,8 +18,6 @@ import android.text.TextUtils;
 class VolleyManager {
 
     private static final String TAG = "volley";
-
-    public final String REQUEST_DEFAULT_TAG = "VolleyRequesterDefaultTag";
 
     /**
      * Default on-disk cache directory.
@@ -69,40 +63,10 @@ class VolleyManager {
      * @param <T>     Request
      */
     public <T> void addRequest(Request<T> request, Object tag) {
-        request.setTag(tag == null ? REQUEST_DEFAULT_TAG : tag);
+        if (tag != null) {
+            request.setTag(tag);
+        }
         mRequestQueue.add(request);
-    }
-
-    /**
-     * 同步请求
-     *
-     * @param request Request
-     * @param <T>     Request
-     *
-     * @return T
-     */
-    public <T> T addSyncRequest(Request<T> request, Object tag)
-            throws InterruptedException, ExecutionException, TimeoutException {
-        return addSyncRequest(request, tag, 0);
-    }
-
-    /**
-     * 同步请求
-     *
-     * @param request       Request
-     * @param tag           tag用于区分是否同一个请求
-     * @param timeoutmillis timeout , 毫秒
-     * @param <T>           Request
-     *
-     * @return T
-     */
-    public <T> T addSyncRequest(Request<T> request, Object tag, long timeoutmillis)
-            throws InterruptedException, ExecutionException, TimeoutException {
-        request.setTag(tag == null ? REQUEST_DEFAULT_TAG : tag);
-        RequestFuture<T> future = RequestFuture.newFuture();
-        future.setRequest(mRequestQueue.add(request)); // can be cancel
-        //        mRequestQueue.add(request);
-        return future.get(timeoutmillis, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -115,14 +79,7 @@ class VolleyManager {
             mRequestQueue.cancelAll(tag);
         }
     }
-
-    /**
-     * 取消请求，默认TAG{@link #REQUEST_DEFAULT_TAG}
-     */
-    public void cancelRequest() {
-        mRequestQueue.cancelAll(REQUEST_DEFAULT_TAG);
-    }
-
+ 
     /**
      * 请求缓存失效，还会用cache对象
      *

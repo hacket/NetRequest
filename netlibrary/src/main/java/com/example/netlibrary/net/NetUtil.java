@@ -5,6 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
@@ -13,6 +14,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.example.netlibrary.util.LogUtil;
 import com.example.netlibrary.util.RunningContext;
 
@@ -243,31 +245,16 @@ public class NetUtil {
                                 @Nullable Map<String, String> params, boolean isNeedCommonParam,
                                 @NonNull Type type, String tag, Request.Priority priority, long timeoutmills,
                                 @Nullable final NetCallback<BaseResponse<T>> callback) {
-        final String url;
-        if (method == Method.GET) {
-            url = new ApiParams().addCustomParam(params).buildUrl(urlPath, isNeedCommonParam);
-        } else {
-            url = urlPath;
-            params = new ApiParams().addCustomParam(params).buildParam(isNeedCommonParam);
-            mVolleyManager.removeCache(url);  // POST 412 ?
-        }
-
         try {
-            GsonRequest<T> gsonRequest = new GsonRequest<>(method, params, url, type, null, null);
-
-            if (priority == null) {
-                priority = Request.Priority.NORMAL;
-            }
-            gsonRequest.setPriority(priority);
-
-            BaseResponse<T> re = mVolleyManager.addSyncRequest(gsonRequest, tag, timeoutmills);
+            BaseResponse<T> response =
+                    requestSync(method, urlPath, params, isNeedCommonParam, type, tag, priority, timeoutmills);
             if (callback != null) {
-                callback.onSuccess(url, re);
+                callback.onSuccess(urlPath, response);
             }
         } catch (Exception e) {
             LogUtil.printStackTrace(e);
             if (callback != null) {
-                callback.onFailed(url, e.getMessage());
+                callback.onFailed(urlPath, e.getMessage());
             }
         }
     }
@@ -282,7 +269,7 @@ public class NetUtil {
      * @param type              type
      * @param tag               tag , 可用于取消请求 {@link #cancelRequest(String)}
      * @param priority          优先级 {@link com.android.volley.Request.Priority}
-     * @param timeoutmills      timeout , 毫秒
+     * @param timeOutMills      timeout , 毫秒
      * @param <T>               T
      *
      * @return BaseResponse<T>
@@ -294,7 +281,7 @@ public class NetUtil {
     @WorkerThread
     public <T> BaseResponse<T> requestSync(@REQUEST_METHOD int method, @NonNull final String urlPath,
                                            @Nullable Map<String, String> params, boolean isNeedCommonParam,
-                                           @NonNull Type type, String tag, Request.Priority priority, long timeoutmills)
+                                           @NonNull Type type, String tag, Request.Priority priority, long timeOutMills)
             throws InterruptedException, ExecutionException, TimeoutException {
         final String url;
         if (method == Method.GET) {
@@ -304,12 +291,22 @@ public class NetUtil {
             params = new ApiParams().addCustomParam(params).buildParam(isNeedCommonParam);
             mVolleyManager.removeCache(url);  // POST 412 ?
         }
-        GsonRequest<T> gsonRequest = new GsonRequest<>(method, params, url, type, null, null);
+
+        RequestFuture<BaseResponse<T>> requestFuture = RequestFuture.newFuture();
+
+        GsonRequest<T> gsonRequest = new GsonRequest<>(method, params, url, type, requestFuture, requestFuture);
         if (priority == null) {
             priority = Request.Priority.NORMAL;
         }
+        if (tag != null) {
+            gsonRequest.setTag(tag);
+        }
         gsonRequest.setPriority(priority);
-        return mVolleyManager.addSyncRequest(gsonRequest, tag, timeoutmills);
+
+        requestFuture.setRequest(mVolleyManager.getRequestQueue().add(gsonRequest)); // can be cancel
+
+        BaseResponse<T> response = requestFuture.get(timeOutMills, TimeUnit.MILLISECONDS);
+        return response;
     }
 
     // ================ requestAsyncGet GsonRequest 同步 ================ //

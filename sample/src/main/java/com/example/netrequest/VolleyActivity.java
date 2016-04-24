@@ -70,11 +70,16 @@ public class VolleyActivity extends AppCompatActivity {
                         Request.Priority.NORMAL, 4000, new NetCallback<BaseResponse<ObjData>>() {
                             @Override
                             public void onSuccess(String url, BaseResponse<ObjData> response) {
-                                ObjData data = response.data;
+                                final ObjData data = response.data;
                                 String md5 = response.md5;
                                 LogUtil.i(TAG, "md5:" + md5);
                                 LogUtil.i(TAG, "data:" + data);
-                                setResult(data.toString());
+                                VolleyActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setResult(data.toString());
+                                    }
+                                });
                             }
 
                             @Override
@@ -94,10 +99,20 @@ public class VolleyActivity extends AppCompatActivity {
             public void run() {
                 super.run();
                 try {
-                    BaseResponse<Object> response = NetUtil.getInstance()
+                    BaseResponse<ObjData> response = NetUtil.getInstance()
                             .requestSync(NetUtil.Method.GET, url_obj, buildParams(), true, ObjData.class, REQUEST_TAG,
                                     Request.Priority.NORMAL, 4000);
                     LogUtil.i(TAG, "data : " + response.data);
+                    final ObjData data = response.data;
+                    String md5 = response.md5;
+                    LogUtil.i(TAG, "md5:" + md5);
+                    LogUtil.i(TAG, "data:" + data);
+                    VolleyActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setResult(data.toString());
+                        }
+                    });
                 } catch (InterruptedException e) {
                     LogUtil.printStackTrace(e);
                 } catch (ExecutionException e) {

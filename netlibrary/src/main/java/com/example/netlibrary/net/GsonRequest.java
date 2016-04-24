@@ -50,6 +50,10 @@ class GsonRequest<T> extends Request<BaseResponse<T>> {
 
     private Response.Listener<BaseResponse<T>> mListener;
 
+    public void setListener(Response.Listener<BaseResponse<T>> listener) {
+        this.mListener = listener;
+    }
+
     /**
      * /**
      * Make a  requestAsyncGet and return a parsed object from JSON.
