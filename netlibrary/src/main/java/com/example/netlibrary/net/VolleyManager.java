@@ -17,7 +17,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 /**
- * Volley RequestQueue请求队列的初始化，添加，取消等
+ * Volley RequestQueue请求队列的初始化，添加，取消，删除缓存，清空缓存
  */
 class VolleyManager {
 
@@ -81,7 +81,8 @@ class VolleyManager {
      *
      * @return T
      */
-    public <T> T addSyncRequest(Request<T> request, Object tag) throws InterruptedException, ExecutionException, TimeoutException {
+    public <T> T addSyncRequest(Request<T> request, Object tag)
+            throws InterruptedException, ExecutionException, TimeoutException {
         return addSyncRequest(request, tag, 0);
     }
 
@@ -99,7 +100,8 @@ class VolleyManager {
             throws InterruptedException, ExecutionException, TimeoutException {
         request.setTag(tag == null ? REQUEST_DEFAULT_TAG : tag);
         RequestFuture<T> future = RequestFuture.newFuture();
-        mRequestQueue.add(request);
+        future.setRequest(mRequestQueue.add(request)); // can be cancel
+        //        mRequestQueue.add(request);
         return future.get(timeoutmillis, TimeUnit.MILLISECONDS);
     }
 
@@ -127,13 +129,13 @@ class VolleyManager {
      * @param key        url
      * @param fullExpire fullExpire
      */
-    public void invalidate(String key, boolean fullExpire) {
+    public void invalidateCache(String key, boolean fullExpire) {
         if (mRequestQueue != null && !TextUtils.isEmpty(key)) {
             mRequestQueue.getCache().invalidate(key, fullExpire);
         }
     }
 
-    public void invalidate(String key) {
+    public void invalidateCache(String key) {
         if (mRequestQueue != null && !TextUtils.isEmpty(key)) {
             mRequestQueue.getCache().invalidate(key, true);
         }
@@ -144,7 +146,7 @@ class VolleyManager {
      *
      * @param key url
      */
-    public void remove(String key) {
+    public void removeCache(String key) {
         if (mRequestQueue != null && !TextUtils.isEmpty(key)) {
             mRequestQueue.getCache().remove(key);
         }

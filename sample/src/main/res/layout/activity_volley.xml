@@ -48,8 +48,14 @@
         <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="NORMAL_GET_SYNC"
-                android:id="@+id/btn_normal_get_obj_sync"/>
+                android:text="NORMAL_GET_SYNC_RETURN"
+                android:id="@+id/btn_normal_get_obj_sync_return"/>
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NORMAL_GET_SYNC_CALLBACK"
+                android:id="@+id/btn_normal_get_obj_sync_callback"/>
 
         <TextView
                 android:id="@+id/tv_result"

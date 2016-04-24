@@ -4,6 +4,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import com.android.volley.Request;
 import com.example.netlibrary.net.BaseResponse;
@@ -59,26 +61,53 @@ public class VolleyActivity extends AppCompatActivity {
         tvResult.setText(result);
     }
 
-    @OnClick(R.id.btn_normal_get_obj_sync)
-    public void normalGetObjSync() {
+    @OnClick(R.id.btn_normal_get_obj_sync_callback)
+    public void normalGetObjSyncCallback() {
 
-        LogUtil.i(TAG, "--------------normalGetObjSync--------------");
-        NetUtil.getInstance().requestSync(NetUtil.Method.GET, url_obj, buildParams(), true, ObjData.class, REQUEST_TAG,
-                Request.Priority.NORMAL, 0, new NetCallback<BaseResponse<ObjData>>() {
-                    @Override
-                    public void onSuccess(String url, BaseResponse<ObjData> response) {
-                        ObjData data = response.data;
-                        String md5 = response.md5;
-                        LogUtil.i(TAG, "md5:" + md5);
-                        LogUtil.i(TAG, "data:" + data);
-                        setResult(data.toString());
-                    }
+        LogUtil.i(TAG, "--------------normalGetObjSync callback--------------");
+        NetUtil.getInstance()
+                .requestSync(NetUtil.Method.GET, url_obj, buildParams(), true, ObjData.class, REQUEST_TAG,
+                        Request.Priority.NORMAL, 4000, new NetCallback<BaseResponse<ObjData>>() {
+                            @Override
+                            public void onSuccess(String url, BaseResponse<ObjData> response) {
+                                ObjData data = response.data;
+                                String md5 = response.md5;
+                                LogUtil.i(TAG, "md5:" + md5);
+                                LogUtil.i(TAG, "data:" + data);
+                                setResult(data.toString());
+                            }
 
-                    @Override
-                    public void onFailed(String url, String errorMsg) {
-                        LogUtil.e(TAG, url + " : " + errorMsg);
-                    }
-                });
+                            @Override
+                            public void onFailed(String url, String errorMsg) {
+                                LogUtil.e(TAG, url + " : " + errorMsg);
+                            }
+                        });
+    }
+
+    @OnClick(R.id.btn_normal_get_obj_sync_return)
+    public void normalGetObjSyncReturn() {
+
+        LogUtil.i(TAG, "--------------normalGetObjSync return--------------");
+
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    BaseResponse<Object> response = NetUtil.getInstance()
+                            .requestSync(NetUtil.Method.GET, url_obj, buildParams(), true, ObjData.class, REQUEST_TAG,
+                                    Request.Priority.NORMAL, 4000);
+                    LogUtil.i(TAG, "data : " + response.data);
+                } catch (InterruptedException e) {
+                    LogUtil.printStackTrace(e);
+                } catch (ExecutionException e) {
+                    LogUtil.printStackTrace(e);
+                } catch (TimeoutException e) {
+                    LogUtil.printStackTrace(e);
+                }
+            }
+        }.start();
+
     }
 
     @OnClick(R.id.btn_high_get_obj)
@@ -149,7 +178,7 @@ public class VolleyActivity extends AppCompatActivity {
                 new NetCallback<BaseResponse<ObjData>>() {
                     @Override
                     public void onSuccess(String url, BaseResponse<ObjData> response) {
-                        LogUtil.e(TAG, "------------normalGetObj---------------");
+                        LogUtil.i(TAG, "------------normalGetObj---------------");
                         ObjData data = response.data;
                         String md5 = response.md5;
                         LogUtil.i(TAG, "md5:" + md5);

@@ -4,6 +4,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
 
@@ -121,8 +123,6 @@ public class NetUtil {
                                          boolean isNeedCommonParam, @NonNull Type type, String tag,
                                          @Nullable final NetCallback<BaseResponse<T>> callback) {
         requestAsync(Method.POST, urlPath, params, isNeedCommonParam, type, tag, Request.Priority.HIGH, callback);
-
-        //        mVolleyManager.remove(url);  // POST 412 ?
     }
 
     /**
@@ -150,6 +150,7 @@ public class NetUtil {
         } else {
             url = urlPath;
             params = new ApiParams().addCustomParam(params).buildParam(isNeedCommonParam);
+            mVolleyManager.removeCache(url);  // POST 412 ?
         }
 
         LogUtil.d(TAG, "requestAsync url : " + url);
@@ -248,6 +249,7 @@ public class NetUtil {
         } else {
             url = urlPath;
             params = new ApiParams().addCustomParam(params).buildParam(isNeedCommonParam);
+            mVolleyManager.removeCache(url);  // POST 412 ?
         }
 
         try {
@@ -263,15 +265,56 @@ public class NetUtil {
                 callback.onSuccess(url, re);
             }
         } catch (Exception e) {
+            LogUtil.printStackTrace(e);
             if (callback != null) {
                 callback.onFailed(url, e.getMessage());
             }
         }
     }
 
+    /**
+     * 同步请求
+     *
+     * @param method            {@link Method#GET} , {@link Method#POST}
+     * @param urlPath           url+path
+     * @param params            自定义参数
+     * @param isNeedCommonParam 是否需要公共参数
+     * @param type              type
+     * @param tag               tag , 可用于取消请求 {@link #cancelRequest(String)}
+     * @param priority          优先级 {@link com.android.volley.Request.Priority}
+     * @param timeoutmills      timeout , 毫秒
+     * @param <T>               T
+     *
+     * @return BaseResponse<T>
+     *
+     * @throws InterruptedException
+     * @throws ExecutionException
+     * @throws TimeoutException
+     */
+    @WorkerThread
+    public <T> BaseResponse<T> requestSync(@REQUEST_METHOD int method, @NonNull final String urlPath,
+                                           @Nullable Map<String, String> params, boolean isNeedCommonParam,
+                                           @NonNull Type type, String tag, Request.Priority priority, long timeoutmills)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        final String url;
+        if (method == Method.GET) {
+            url = new ApiParams().addCustomParam(params).buildUrl(urlPath, isNeedCommonParam);
+        } else {
+            url = urlPath;
+            params = new ApiParams().addCustomParam(params).buildParam(isNeedCommonParam);
+            mVolleyManager.removeCache(url);  // POST 412 ?
+        }
+        GsonRequest<T> gsonRequest = new GsonRequest<>(method, params, url, type, null, null);
+        if (priority == null) {
+            priority = Request.Priority.NORMAL;
+        }
+        gsonRequest.setPriority(priority);
+        return mVolleyManager.addSyncRequest(gsonRequest, tag, timeoutmills);
+    }
+
     // ================ requestAsyncGet GsonRequest 同步 ================ //
 
-    // ================ requestAsyncGet JSONObject 异步================ //
+    // ================ requestAsyncGet JSONObject 异步 ================ //
 
     /**
      * POST  公共参数 无自定义参数
@@ -351,6 +394,7 @@ public class NetUtil {
         } else {
             url = urlPath;
             jsonObjRequest = new JSONObject(new ApiParams().addCustomParam(params).buildParam(isNeedCommonParam));
+            mVolleyManager.removeCache(url);  // POST 412 ?
         }
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(method, url, jsonObjRequest,
@@ -382,7 +426,7 @@ public class NetUtil {
     }
 
     public void removeCache(String key) {
-        mVolleyManager.remove(key);
+        mVolleyManager.removeCache(key);
     }
 
     public interface Method {
