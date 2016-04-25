@@ -56,11 +56,11 @@ class GsonRequest<T> extends Request<BaseResponse<T>> {
 
     /**
      * /**
-     * Make a  requestAsyncGet and return a parsed object from JSON.
+     * Make a  request and return a parsed object from JSON.
      *
-     * @param url           URL of the requestAsyncGet to make
-     * @param headers       Map of requestAsyncGet headers
-     * @param params        Map of requestAsyncGet params
+     * @param url           URL of the request to make
+     * @param headers       Map of request headers
+     * @param params        Map of request params
      * @param type          Relevant type object, for Gson's reflection
      * @param listener      listener
      * @param errorListener errorListener
@@ -116,10 +116,19 @@ class GsonRequest<T> extends Request<BaseResponse<T>> {
             if (mType != null) {
                 if (mType instanceof Class) {
                     JSONObject jsonDataObj = jsonObject.optJSONObject(BaseResponse.DATA);
-                    data = mGson.fromJson(jsonDataObj.toString(), mType);
+                    if (null != jsonDataObj) {
+                        data = mGson.fromJson(jsonDataObj.toString(), mType);
+                    } else {
+                        data = null;
+                    }
                 } else {
                     JSONArray jsonDataArray = jsonObject.optJSONArray(BaseResponse.DATA);
-                    data = mGson.fromJson(jsonDataArray.toString(), mType);
+                    if (null != jsonDataArray) {
+                        data = mGson.fromJson(jsonDataArray.toString(), mType);
+
+                    } else {
+                        data = null;
+                    }
                 }
 
                 BaseResponse<T> response = new BaseResponse<>();
@@ -145,10 +154,12 @@ class GsonRequest<T> extends Request<BaseResponse<T>> {
 
     @Override
     protected Map<String, String> getParams() throws AuthFailureError {
-        LogUtil.i(TAG, "getParams() :" + mParams.size());
-        //在这里设置需要post的参数
-        Map<String, String> params = new HashMap<String, String>();
-        params.putAll(mParams);
+        Map<String, String> params = new HashMap<>();
+        if (mParams != null) {
+            LogUtil.i(TAG, "getParams() :" + mParams.size());
+            // 在这里设置需要post的参数
+            params.putAll(mParams);
+        }
         return params;
     }
 

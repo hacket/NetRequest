@@ -34,8 +34,6 @@ class ApiParams {
     private static final String ENCODE_CHARSET = "UTF-8";
 
     public static class ParamKey {
-        public static final String API = "api";
-
         // common param key
         public static final String PACKAGE_VERSION = "av";
         public static final String UUID = "uuid";
@@ -54,19 +52,19 @@ class ApiParams {
     }
 
     @CommonParam(ParamKey.PACKAGE_VERSION)
-    private String mVersionName = RunningContext.getAppContext().getPackageName(); // SysUtil.getVersionName();
+    private String mVersionName = RunningContext.getAppContext().getPackageName();
 
     @CommonParam(ParamKey.UUID)
-    private String mUuid = "uuid-hacket"; // SysUtil.getUid();
+    private String mUuid =  "uuid-hacket";
 
     @CommonParam(ParamKey.LANG)
-    private String mLanguage = "cn"; // BdLanguageUtil.getCurrentLanguage();
+    private String mLanguage = "en";
 
     @CommonParam(ParamKey.COUNTRY)
-    private String mCountry = "zh"; // BdLanguageUtil.getSysCountry();
+    private String mCountry = "gb";
 
     @CommonParam(ParamKey.CHANNEL)
-    private String mChannel = "gp"; // BdChannelUtil.getChannel();
+    private String mChannel = "gp";
 
     @CommonParam(ParamKey.SDK_VERSION)
     private String mSdkVersion = String.valueOf(Build.VERSION.SDK_INT);

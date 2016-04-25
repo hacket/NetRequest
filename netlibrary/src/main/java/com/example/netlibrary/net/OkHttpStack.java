@@ -12,7 +12,7 @@ import okhttp3.OkUrlFactory;
 /**
  * OkHttpStack
  */
-class OkHttpStack extends HurlStack {
+public class OkHttpStack extends HurlStack {
 
     private final OkUrlFactory mFactory;
     private static OkHttpClient internalClient;

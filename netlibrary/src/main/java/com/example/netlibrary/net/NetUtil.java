@@ -39,7 +39,7 @@ public class NetUtil {
 
     public static NetUtil getInstance() {
         if (mInstance == null) {
-            synchronized(NetUtil.class) {
+            synchronized (NetUtil.class) {
                 if (mInstance == null) {
                     mInstance = new NetUtil();
                 }
@@ -134,7 +134,7 @@ public class NetUtil {
      * @param method            {@link Method#GET } , {@link Method#POST}
      * @param urlPath           host+path
      * @param params            自定义参数
-     * @param isNeedCommonParam 是否需要公共参数  {@link ApiParams#buildCommonParamToString}
+     * @param isNeedCommonParam 是否需要公共参数  {@link ApiParams#buildParam(boolean)}
      * @param type              JSONObject传个xxx.class ; JSONArray传type ; 具体使用参考UserRepository#getUserEntry}
      * @param tag               tag , 可用于取消请求 {@link #cancelRequest(String)}
      * @param priority          priority 优先级 {@link com.android.volley.Request.Priority}
@@ -156,22 +156,21 @@ public class NetUtil {
             mVolleyManager.removeCache(url);  // POST 412 ?
         }
 
-        LogUtil.d(TAG, "requestAsync url : " + url);
+        LogUtil.i(TAG, "requestAsync url : " + url);
 
         if (priority == null) {
             priority = Request.Priority.NORMAL;
         }
 
         GsonRequest<T> gsonRequest =
-                new GsonRequest<>(method, params, url, type,
-                        new Response.Listener<BaseResponse<T>>() {
-                            @Override
-                            public void onResponse(BaseResponse<T> response) {
-                                if (callback != null) {
-                                    callback.onSuccess(url, response);
-                                }
-                            }
-                        }, new Response.ErrorListener() {
+                new GsonRequest<>(method, params, url, type, new Response.Listener<BaseResponse<T>>() {
+                    @Override
+                    public void onResponse(BaseResponse<T> response) {
+                        if (callback != null) {
+                            callback.onSuccess(url, response);
+                        }
+                    }
+                }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         if (callback != null) {
@@ -215,6 +214,16 @@ public class NetUtil {
                                    @NonNull Type type, String tag,
                                    @Nullable final NetCallback<BaseResponse<T>> callback) {
         requestSyncGet(urlPath, params, true, type, tag, null, 0, callback);
+    }
+
+    /**
+     * 同步，GET , Normal
+     */
+    public <T> void requestSyncGet(@NonNull final String urlPath, @Nullable Map<String, String> params,
+                                   boolean isNeedCommonParam, @NonNull Type type, String tag, long timeoutmills,
+                                   @Nullable final NetCallback<BaseResponse<T>> callback) {
+        requestSync(Method.GET, urlPath, params, isNeedCommonParam, type, tag, Request.Priority.NORMAL, timeoutmills,
+                callback);
     }
 
     /**
@@ -378,7 +387,7 @@ public class NetUtil {
      * @param params            自定义参数
      * @param isNeedCommonParam 是否需要公共参数
      * @param tag               请求tag，可用于cancel
-     * @param callback
+     * @param callback NetCallback
      */
     @UiThread
     public void requestJsonAsync(@REQUEST_METHOD int method, @NonNull final String urlPath,
@@ -419,11 +428,31 @@ public class NetUtil {
 
     // ================ requestAsyncGet JSONObject 异步 ================ //
 
+    /**
+     * 取消请求
+     * @param request  Request
+     */
+    public void cancelRequest(Request request) {
+        if (request != null) {
+            request.cancel();
+        }
+    }
+
+    /**
+     * 根据tag取消request
+     *
+     * @param tag request的tag
+     */
     public void cancelRequest(String tag) {
-        LogUtil.i(TAG, "cancel requestAsync , tag:" + tag);
+        LogUtil.i(TAG, "cancel request by tag:" + tag);
         mVolleyManager.cancelRequest(tag);
     }
 
+    /**
+     * 移除key的cache
+     *
+     * @param key url
+     */
     public void removeCache(String key) {
         mVolleyManager.removeCache(key);
     }
@@ -433,8 +462,9 @@ public class NetUtil {
         int POST = 1;
     }
 
-    @IntDef({Method.GET, Method.POST})
+
     @Retention(RetentionPolicy.SOURCE)
+    @IntDef({Method.GET, Method.POST})
     public @interface REQUEST_METHOD {
     }
 

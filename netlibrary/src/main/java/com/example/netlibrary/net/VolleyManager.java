@@ -69,6 +69,12 @@ class VolleyManager {
         mRequestQueue.add(request);
     }
 
+    public void cancelRequest(Request request) {
+        if (request != null) {
+            request.cancel();
+        }
+    }
+
     /**
      * 取消请求
      *
@@ -123,7 +129,7 @@ class VolleyManager {
 
     public static VolleyManager getInstance(Context context) {
         if (mInstance == null) {
-            synchronized(VolleyManager.class) {
+            synchronized (VolleyManager.class) {
                 if (mInstance == null) {
                     mInstance = new VolleyManager(context);
                 }
