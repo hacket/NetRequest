@@ -18,6 +18,7 @@ import com.android.volley.toolbox.RequestFuture;
 import com.example.netlibrary.util.LogUtil;
 import com.example.netlibrary.util.RunningContext;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -278,6 +279,7 @@ public class NetUtil {
      * @throws ExecutionException
      * @throws TimeoutException
      */
+    @CheckResult
     @WorkerThread
     public <T> BaseResponse<T> requestSync(@REQUEST_METHOD int method, @NonNull final String urlPath,
                                            @Nullable Map<String, String> params, boolean isNeedCommonParam,
@@ -418,7 +420,7 @@ public class NetUtil {
     // ================ requestAsyncGet JSONObject 异步 ================ //
 
     public void cancelRequest(String tag) {
-        LogUtil.d(TAG, "cancel requestAsync , tag:" + tag);
+        LogUtil.i(TAG, "cancel requestAsync , tag:" + tag);
         mVolleyManager.cancelRequest(tag);
     }
 
