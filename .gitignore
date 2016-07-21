@@ -12,7 +12,8 @@ gen/
 out/
 build/
 
-# Local configuration file (sdk path, etc)local.properties
+# Local configuration file (sdk path, etc)
+local.properties
 
 # Windows thumbnail db
 Thumbs.db
@@ -23,10 +24,12 @@ Thumbs.db
 # Eclipse project files
 .classpath
 .project
+.settings
 
 # Android Studio
 *.iml
 .idea
+.settings
 
 # Local IDEA workspace
 .idea/workspace.xml
@@ -36,3 +39,6 @@ Thumbs.db
 
 #NDK
 obj/
+
+# git mergetool backup
+*.orig
