@@ -7,7 +7,12 @@ import java.util.Map;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.example.netlibrary.net_new.callback.NetCallbackNew;
+import com.example.netlibrary.net_new.request.GsonRequestNew;
+import com.example.netlibrary.net_new.response.BaseResponseNew;
 import com.example.netlibrary.util.RunningContext;
+
+import android.text.TextUtils;
 
 /**
  * Http请求
@@ -19,31 +24,15 @@ public class HttpClient {
     private Builder mBuilder;
     private final VolleyManagerNew mVolleyManagerNew;
 
-    private void test() {
-        HttpClient client = new Builder().build();
-
-        client.get(new NetCallbackNew<BaseResponseNew<String>>() {
-            @Override
-            public void onSuccess(String url, BaseResponseNew<String> response) {
-
-            }
-
-            @Override
-            public void onFailed(String url, String errorMsg) {
-
-            }
-        });
-    }
-
     private HttpClient(Builder builder) {
         this.mBuilder = builder;
         mVolleyManagerNew = VolleyManagerNew.getInstance(RunningContext.getAppContext());
     }
 
-    public <T> void get(final NetCallbackNew<BaseResponseNew<T>> callbackNew) {
+    public <T> void get(final String url, final NetCallbackNew<BaseResponseNew<T>> callbackNew) {
 
-        final String url = new ApiParamsNew().addCustomParam(mBuilder.params).buildUrl(mBuilder.urlPath,
-                mBuilder.isNeedCommonParam);
+//        final String url = new RequestParams().addCustomParam(mBuilder.params).buildUrl(mBuilder.urlPath,
+//                mBuilder.isNeedCommonParam);
 
         Response.Listener<BaseResponseNew<T>> listener = new Response.Listener<BaseResponseNew<T>>() {
             @Override
@@ -65,6 +54,7 @@ public class HttpClient {
 
         GsonRequestNew requestNew = new GsonRequestNew.Builder<T>()
                 .method(mBuilder.method)
+                .headers(mBuilder.headers)
                 .params(mBuilder.params)
                 .url(url)
                 .type(mBuilder.type)
@@ -90,6 +80,7 @@ public class HttpClient {
         // 可选
         int method = Request.Method.GET;
         Map<String, String> params;
+        Map<String, String> headers;
         boolean isNeedCommonParam = true;
         Request.Priority priority = Request.Priority.NORMAL;
         String baseUrl;
@@ -132,16 +123,37 @@ public class HttpClient {
             return this;
         }
 
-        public Builder param(Map<String, String> params) {
+        public Builder headers(Map<String, String> headers) {
+            if (this.headers == null) {
+                this.headers = new HashMap<>();
+            }
+            this.headers = headers;
+            return this;
+        }
+
+        public Builder header(String key, String value) {
+            if (this.headers == null) {
+                this.headers = new HashMap<>();
+            }
+            if (!TextUtils.isEmpty(key)) {
+                this.headers.put(key, value);
+            }
+            return this;
+        }
+
+        public Builder params(Map<String, String> params) {
+            if (this.params == null) {
+                this.params = new HashMap<>();
+            }
             this.params = params;
             return this;
         }
 
         public Builder param(String key, String value) {
-            if (params == null) {
-                params = new HashMap<>();
+            if (this.params == null) {
+                this.params = new HashMap<>();
             }
-            params.put(key, value);
+            this.params.put(key, value);
             return this;
         }
 

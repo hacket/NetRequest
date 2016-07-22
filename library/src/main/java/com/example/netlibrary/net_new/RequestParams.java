@@ -24,9 +24,9 @@ import android.text.TextUtils;
  * 构建请求参数
  * Created by zengfansheng on 2016/4/14.
  */
-class ApiParamsNew {
+class RequestParams {
 
-    private static final String TAG = ApiParamsNew.class.getSimpleName();
+    private static final String TAG = RequestParams.class.getSimpleName();
 
     private static final String QMARK = "?";
     private static final String ANDMARK = "&";
@@ -34,7 +34,7 @@ class ApiParamsNew {
     private static final String ENCODE_CHARSET = "UTF-8";
 
     public static class ParamKey {
-        // common param key
+        // common params key
         public static final String PACKAGE_VERSION = "av";
         public static final String UUID = "uuid";
         public static final String LANG = "la";
@@ -78,7 +78,7 @@ class ApiParamsNew {
     private Map<String, String> paramsMap = new HashMap<>();
 
     @CheckResult
-    public ApiParamsNew addCustomParam(@NonNull String key, String value) {
+    public RequestParams addCustomParam(@NonNull String key, String value) {
         if (!TextUtils.isEmpty(key)) {
             paramsMap.put(key, value);
         }
@@ -86,7 +86,7 @@ class ApiParamsNew {
     }
 
     @CheckResult
-    public ApiParamsNew addCustomParam(Map<String, String> params) {
+    public RequestParams addCustomParam(Map<String, String> params) {
         if (params != null && !params.isEmpty()) {
             paramsMap.putAll(params);
         }
@@ -185,7 +185,7 @@ class ApiParamsNew {
     @CheckResult
     public String buildCommonParamToString() {
         StringBuilder sb = new StringBuilder();
-        Field[] fields = ApiParamsNew.class.getDeclaredFields();
+        Field[] fields = RequestParams.class.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             if (field.isAnnotationPresent(CommonParam.class)) {
@@ -196,7 +196,7 @@ class ApiParamsNew {
                 }
                 String value = "";
                 try {
-                    value = (String) field.get(ApiParamsNew.this);
+                    value = (String) field.get(RequestParams.this);
                 } catch (IllegalAccessException e) {
                     LogUtil.printStackTrace(e);
                 } finally {
@@ -221,7 +221,7 @@ class ApiParamsNew {
     @CheckResult
     private Map<String, String> getCommonParam() {
         Map<String, String> commonParams = new HashMap<>();
-        Field[] fields = ApiParamsNew.class.getDeclaredFields();
+        Field[] fields = RequestParams.class.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             if (field.isAnnotationPresent(CommonParam.class)) {
@@ -232,7 +232,7 @@ class ApiParamsNew {
                 }
                 String value;
                 try {
-                    value = (String) field.get(ApiParamsNew.this);
+                    value = (String) field.get(RequestParams.this);
                     if (TextUtils.isEmpty(value)) {
                         continue;
                     }

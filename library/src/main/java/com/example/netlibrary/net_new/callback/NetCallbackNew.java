@@ -1,4 +1,4 @@
-package com.example.netlibrary.net_new;
+package com.example.netlibrary.net_new.callback;
 
 /**
  * 网络请求回调

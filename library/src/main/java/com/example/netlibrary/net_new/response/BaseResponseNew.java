@@ -1,4 +1,4 @@
-package com.example.netlibrary.net_new;
+package com.example.netlibrary.net_new.response;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -1,4 +1,4 @@
-package com.example.netlibrary.net_new;
+package com.example.netlibrary.net_new.request;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
@@ -16,6 +16,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.example.netlibrary.net_new.response.BaseResponseNew;
 import com.example.netlibrary.util.LogUtil;
 import com.google.gson.Gson;
 
@@ -37,7 +38,7 @@ import android.support.annotation.NonNull;
  *            <br/>
  *            Created by zengfansheng on 2016/4/14.
  */
-class GsonRequestNew<T> extends Request<BaseResponseNew<T>> {
+public class GsonRequestNew<T> extends Request<BaseResponseNew<T>> {
 
     private static final String TAG = "volley";
     private Builder mBuilder;

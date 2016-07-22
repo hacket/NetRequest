@@ -1,4 +1,4 @@
-package com.example.netlibrary.net_new;
+package com.example.netlibrary.net_new.external;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

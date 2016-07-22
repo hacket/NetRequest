@@ -34,7 +34,7 @@ class ApiParams {
     private static final String ENCODE_CHARSET = "UTF-8";
 
     public static class ParamKey {
-        // common param key
+        // common params key
         public static final String PACKAGE_VERSION = "av";
         public static final String UUID = "uuid";
         public static final String LANG = "la";
