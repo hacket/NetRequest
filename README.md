@@ -1,6 +1,6 @@
-### 基于Volley+Okhttp+Gson的网络请求封装
+# 基于Volley+Okhttp+Gson的网络请求封装
 
-#### 1、解决的问题
+## 1、解决的问题
 用于解决如下json模板解析的问题，不用每个数据bean都定义s,d,n等信息，统一定义在`BaseResponse`中
 ```json
 {
@@ -18,7 +18,7 @@
 }
 ```
 
-#### 2、提供的功能
+## 2、提供的功能
 1. GET、POST网络请求
 
 2. 对请求进行优先级的排序
@@ -128,3 +128,21 @@ public void gsonGet() {
 }
 ```
 还支持通过tag请求的取消；设置请求优先级的；同步请求；缓存的清除
+
+## License
+
+```
+Copyright 2016 hacket
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
